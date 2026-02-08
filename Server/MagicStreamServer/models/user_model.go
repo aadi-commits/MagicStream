@@ -6,6 +6,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type FavouriteGenre struct {
+	GenreID   int    `bson:"genre_id" json:"genre_id"`
+	GenreName string `bson:"genre_name" json:"genre_name"`
+}
+
 type User struct {
 
 	ID 					primitive.ObjectID		`bson:"_id,omitempty" json:"_id,omitempty"`
@@ -19,5 +24,5 @@ type User struct {
 	UpdatedAt 			time.Time				`bson:"updated_at" json:"updated_at"`
 	Token 				string					`bson:"token" json:"token"`
 	RefreshToken 		string					`bson:"refresh_token" json:"refresh_token"`
-	FavouriteGenres 	[]Genre					`bson:"favourite_genre" json:"favourite_genre" validate:"required,dive"`
+	FavouriteGenres 	[]FavouriteGenre		`bson:"favourite_genres" json:"favourite_genres" validate:"required,dive"`
 }
