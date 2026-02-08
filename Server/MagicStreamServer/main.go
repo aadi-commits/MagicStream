@@ -11,15 +11,21 @@ import (
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/database"
 )
 
-func main(){
-	
+func init() {
+
 	//Load environment variable
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found")
 	}
+}
+
+func main(){
 
 	//connect MongoDB 
 	database.Connect()
+
+	//Initialize controller dependencies
+	controller.InitMovieController()
 
 	//Create gin router
 	router:= gin.Default()
@@ -29,6 +35,8 @@ func main(){
 	})
 
 	router.GET("/movies", controller.GetMovies())
+	router.GET("/movie/:imdb_id", controller.GetMovie())
+	router.POST("/addmovie", controller.AddMovie())
 
 	if err:= router.Run(":8080"); err!= nil{
 		fmt.Println("Failed to start server", err)
