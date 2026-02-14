@@ -9,6 +9,7 @@ import (
 
 	controller "github.com/aadi-commits/MagicStream/Server/MagicStreamServer/controllers"
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/database"
+	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/routes"
 )
 
 func init() {
@@ -26,6 +27,7 @@ func main(){
 
 	//Initialize controller dependencies
 	controller.InitMovieController()
+	controller.InitUserController()
 
 	//Create gin router
 	router:= gin.Default()
@@ -34,9 +36,9 @@ func main(){
 		c.String(200, "Hello, Magic Stream Movies!")
 	})
 
-	router.GET("/movies", controller.GetMovies())
-	router.GET("/movie/:imdb_id", controller.GetMovie())
-	router.POST("/addmovie", controller.AddMovie())
+	api := router.Group("/api/v1")
+	routes.SetupUnProtectedRoutes(api)
+	routes.SetupProctectedRoutes(api)
 
 	if err:= router.Run(":8080"); err!= nil{
 		fmt.Println("Failed to start server", err)
