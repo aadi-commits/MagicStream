@@ -7,6 +7,7 @@ import (
 
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/database"
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/models"
+	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -72,7 +73,7 @@ func RegisterUser() gin.HandlerFunc {
 		}
 
 		user.ID = primitive.NewObjectID()
-		user.UserID = user.ID.Hex()
+		// user.UserID = user.ID.Hex()
 		user.Password = hashedPassword
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = time.Now()
@@ -91,3 +92,59 @@ func RegisterUser() gin.HandlerFunc {
 		
 	}
 }
+
+func LoginUser() gin.HandlerFunc{
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var userLogin models.UserLogin
+		if err := c.ShouldBindJSON(&userLogin);err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input."})
+			return 
+		}
+
+		if err := validate.Struct(userLogin);err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Validation error.", "details": err.Error()})
+			return 
+		}
+
+		var foundUser models.User
+		if err := userCollection.FindOne(ctx, bson.M{"email": userLogin.Email}).Decode(&foundUser);err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password."})
+			return 
+		}
+
+		err := bcrypt.CompareHashAndPassword(
+			[]byte(foundUser.Password), 
+			[]byte(userLogin.Password),
+		)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password."})
+			return 
+		}
+
+		//Generate Tokens
+		accessToken, refreshToken, err := utils.GenerateAllTokens(
+			foundUser.ID.Hex(),
+			foundUser.Role,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate tokens."})
+			return 
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"access_token": accessToken,
+			"refresh_token": refreshToken,
+			"user":gin.H{
+				"id": foundUser.ID.Hex(),
+				"email": foundUser.Email,
+				"first_name": foundUser.FirstName,
+				"last_name": foundUser.LastName,
+				"role": foundUser.Role,
+			},
+		})
+		
+	}
+} 
