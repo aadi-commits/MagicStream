@@ -9,7 +9,7 @@ import (
 
 	controller "github.com/aadi-commits/MagicStream/Server/MagicStreamServer/controllers"
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/database"
-	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/middlewares"
+	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/routes"
 )
 
 func init() {
@@ -36,27 +36,9 @@ func main(){
 		c.String(200, "Hello, Magic Stream Movies!")
 	})
 
-	router.GET("/movies", controller.GetMovies())
-	router.GET("/movie/:imdb_id", controller.GetMovie())
-	router.POST("/addmovie", controller.AddMovie())
-
-	router.POST("/register", controller.RegisterUser())
-	router.POST("/login", controller.LoginUser())
-
-	protected := router.Group("/api")
-	protected.Use(middlewares.AuthMiddleware())
-	{
-		protected.GET("/profile", func(c *gin.Context) {
-			userID, _ := c.Get("user_id")
-    		role, _ := c.Get("role")
-
-			c.JSON(200, gin.H{
-				"message": "Profile accessed",
-				"user_id": userID,
-				"role": role,
-			})
-		})
-	}
+	api := router.Group("/api/v1")
+	routes.SetupUnProtectedRoutes(api)
+	routes.SetupProctectedRoutes(api)
 
 	if err:= router.Run(":8080"); err!= nil{
 		fmt.Println("Failed to start server", err)
