@@ -6,11 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupProctectedRoutes(router *gin.RouterGroup){
+func SetupProctectedRoutes(router *gin.RouterGroup, ctl *controller.AIController){
 
 	protected := router.Group("/")
 	protected.Use(middlewares.AuthMiddleware())
 
 	protected.GET("/movie/:imdb_id", controller.GetMovie())
 	protected.POST("/addmovie", controller.AddMovie())
+	protected.POST("/ai/infer", ctl.Infer())
 }
