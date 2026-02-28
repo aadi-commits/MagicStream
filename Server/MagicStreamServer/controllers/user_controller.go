@@ -70,11 +70,13 @@ func RegisterUser() gin.HandlerFunc {
 		hashedPassword, err := HashPassword(user.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
 		}
 
 		user.ID = primitive.NewObjectID()
 		// user.UserID = user.ID.Hex()
 		user.Password = hashedPassword
+		user.Role = utils.RoleUser
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = time.Now()
 

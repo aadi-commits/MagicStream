@@ -8,10 +8,17 @@ import (
 
 func SetupProctectedRoutes(router *gin.RouterGroup, ctl *controller.AIController){
 
-	protected := router.Group("/")
-	protected.Use(middlewares.AuthMiddleware())
+	auth := router.Group("/")
+	auth.Use(middlewares.AuthMiddleware())
 
-	protected.GET("/movie/:imdb_id", controller.GetMovie())
-	protected.POST("/addmovie", controller.AddMovie())
-	protected.POST("/ai/infer", ctl.Infer())
+	auth.GET("/movie/:imdb_id",
+		middlewares.Authorize(1),
+		controller.GetMovie(),
+	)
+
+	admin := auth.Group("/")
+	admin.Use(middlewares.Authorize(2))
+
+	admin.POST("/addmovie", controller.AddMovie())
+	admin.POST("/ai/infer", ctl.Infer())
 }

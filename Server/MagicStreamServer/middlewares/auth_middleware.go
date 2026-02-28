@@ -35,9 +35,17 @@ func AuthMiddleware() gin.HandlerFunc {
 			return 
 		}
 
+		rank, exists := utils.RoleRank[claims.Role]
+		if !exists{
+			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid role."})
+			c.Abort()
+			return 
+		}
+
 		// Attach user information
 		c.Set("user_id", claims.UserID)
 		c.Set("role", claims.Role)
+		c.Set("rank", rank)
 
 		c.Next()
 
