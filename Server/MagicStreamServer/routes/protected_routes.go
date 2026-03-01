@@ -1,12 +1,16 @@
 package routes
 
 import (
+	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/controllers"
 	controller "github.com/aadi-commits/MagicStream/Server/MagicStreamServer/controllers"
 	"github.com/aadi-commits/MagicStream/Server/MagicStreamServer/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupProctectedRoutes(router *gin.RouterGroup, ctl *controller.AIController){
+func SetupProctectedRoutes(
+	router *gin.RouterGroup, 
+	ctl *controller.AIController,
+	movieCtl *controllers.MovieController){
 
 	auth := router.Group("/")
 	auth.Use(middlewares.AuthMiddleware())
@@ -21,4 +25,5 @@ func SetupProctectedRoutes(router *gin.RouterGroup, ctl *controller.AIController
 
 	admin.POST("/addmovie", controller.AddMovie())
 	admin.POST("/ai/infer", ctl.Infer())
+	admin.POST("/ai/admin_review/:imdb_id", movieCtl.AdminReview())
 }
