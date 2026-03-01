@@ -37,13 +37,15 @@ func main(){
 	//connect MongoDB 
 	database.Connect()
 
-	//Initialize controller dependencies
-	controller.InitMovieController()
-	controller.InitUserController()
-
 	//LLM Model integration
 	nvidiaClient := ai.NewNvidiaClient()
 	aiService := ai.NewService(nvidiaClient)
+	// aiController := controller.InitAIController(aiService)
+
+	//Initialize controller dependencies
+	movieController := controller.InitMovieController(aiService)
+	controller.InitUserController()
+
 	aiController := controller.InitAIController(aiService)
 
 	//Create gin router
@@ -55,7 +57,7 @@ func main(){
 
 	api := router.Group("/api/v1")
 	routes.SetupUnProtectedRoutes(api)
-	routes.SetupProctectedRoutes(api, aiController)
+	routes.SetupProctectedRoutes(api, aiController, movieController)
 
 	//Load API key
 	apiKey := os.Getenv("NVIDIA_API_KEY")
