@@ -62,7 +62,7 @@ func (s *Service) GenerateAdminRanking(ctx context.Context, review string) (int,
 		return 0, rawResponse, fmt.Errorf("AI request failed: %w", err)
 	}
 
-	fmt.Println("RAW AI RESPONSE:", rawResponse)
+	// fmt.Println("RAW AI RESPONSE:", rawResponse)
 	rankStr := strings.TrimSpace(rawResponse)
 
 	switch rankStr {

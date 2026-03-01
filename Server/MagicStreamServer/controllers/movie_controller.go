@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"net/http"
 	"time"
 
@@ -149,14 +149,14 @@ func (mc *MovieController) AdminReview() gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 			return
 		}
-		fmt.Println("1 - After movie fetch")
+		// fmt.Println("1 - After movie fetch")
 		rank, rawAIResponse, aiErr := mc.AIService.GenerateAdminRanking(ctx, req.AdminReview)
-		fmt.Println("2 - After AI call")
-		fmt.Println("After GenerateAdminRanking")
-		fmt.Println("Rank:", rank)
-		fmt.Println("Raw:", rawAIResponse)
-		fmt.Println("Err:", aiErr)
-		fmt.Println("3 - Before log insert")
+		// fmt.Println("2 - After AI call")
+		// fmt.Println("After GenerateAdminRanking")
+		// fmt.Println("Rank:", rank)
+		// fmt.Println("Raw:", rawAIResponse)
+		// fmt.Println("Err:", aiErr)
+		// fmt.Println("3 - Before log insert")
 		log := models.AIReviewLog{
 			MovieID:       imdb_id,
 			AdminReview:   req.AdminReview,
@@ -170,22 +170,22 @@ func (mc *MovieController) AdminReview() gin.HandlerFunc {
 		}else {
 			log.Status = "success"
 		}
-		fmt.Println("4 - After log insert")
+		// fmt.Println("4 - After log insert")
 		// Insert AI log
 		aiLogsColl := database.OpenCollection("ai_review_logs")
-		result, err := aiLogsColl.InsertOne(ctx, log)
+		_, err := aiLogsColl.InsertOne(ctx, log)
 		if err != nil {
-			fmt.Println("Insert error:", err)
+			// fmt.Println("Insert error:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert AI log"})
 			return
 		}
-		fmt.Println("Inserted ID:", result.InsertedID)
+		// fmt.Println("Inserted ID:", result.InsertedID)
 
 		if aiErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "AI review failed, please try again", "details": aiErr.Error()})
 			return
 		}
-		fmt.Println("5 - Before ranking lookup")
+		// fmt.Println("5 - Before ranking lookup")
 		// fmt.Printf("AI Parsed Rank: %v\n", rank)
 		// fmt.Printf("AI Parsed Rank Type: %T\n", rank)
 		// Lookup ranking info
